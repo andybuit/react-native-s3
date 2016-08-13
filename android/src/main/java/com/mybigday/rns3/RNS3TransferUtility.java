@@ -1,11 +1,5 @@
 package com.mybigday.rns3;
 
-import java.io.File;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-
 import android.content.Context;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -14,22 +8,31 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.auth.CognitoCredentialsProvider;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferType;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
-
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.Promise;
-
-import com.amazonaws.services.s3.*;
-import com.amazonaws.mobileconnectors.s3.transferutility.*;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class RNS3TransferUtility extends ReactContextBaseJavaModule {
   public static enum CredentialType {
@@ -160,7 +163,7 @@ public class RNS3TransferUtility extends ReactContextBaseJavaModule {
           );
         } else {
           credentialsProvider = new CognitoCachingCredentialsProvider(
-            context,
+            context.getApplicationContext(),
             (String) credentialsOptions.get("identity_pool_id"),
             Regions.fromName(cognitoRegion)
           );
@@ -177,7 +180,7 @@ public class RNS3TransferUtility extends ReactContextBaseJavaModule {
       s3 = new AmazonS3Client(credentialsProvider);
     }
     s3.setRegion(region);
-    transferUtility = new TransferUtility(s3, context);
+    transferUtility = new TransferUtility(s3, context.getApplicationContext());
     return true;
   }
 
@@ -185,8 +188,8 @@ public class RNS3TransferUtility extends ReactContextBaseJavaModule {
   public void initializeRNS3() {
     if (alreadyInitialize) return;
     alreadyInitialize = true;
-    subscribeList(transferUtility.getTransfersWithType(TransferType.UPLOAD));
-    subscribeList(transferUtility.getTransfersWithType(TransferType.DOWNLOAD));
+//    subscribeList(transferUtility.getTransfersWithType(TransferType.UPLOAD));
+//    subscribeList(transferUtility.getTransfersWithType(TransferType.DOWNLOAD));
   }
 
   @ReactMethod
@@ -239,7 +242,8 @@ public class RNS3TransferUtility extends ReactContextBaseJavaModule {
       } catch (Exception e) {}
       // TODO: more field
 
-      task = transferUtility.upload(bucket, key, file, metaData);
+//      task = transferUtility.upload(bucket, key, file, metaData);
+      task = transferUtility.upload(bucket, key, file);
     } else {
       task = transferUtility.upload(bucket, key, file);
     }
